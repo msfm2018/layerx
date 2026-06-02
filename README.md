@@ -3,7 +3,7 @@
 > A powerful, lightweight, and flexible **Flutter overlay & dialog management system**
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/msfm2018/layerx/index.png" width="300"/>
+    <img src="https://github.com/msfm2018/layerx/blob/1.0.0/index.png?raw=true" width="300">
 </p>
 
 ## ✨ Features
