@@ -1,0 +1,31 @@
+name: layerx
+description: A powerful overlay and dialog system for Flutter. Manage dialogs, toasts, loading, and sheets globally — no BuildContext required.
+version: 1.0.0
+homepage: https://github.com/msfm2018/layerx
+repository: https://github.com/msfm2018/layerx
+issue_tracker: https://github.com/msfm2018/layerx/issues
+
+topics:
+  - overlay
+  - dialog
+  - toast
+  - flutter
+  - ui
+
+environment:
+  sdk: '>=3.0.6 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+
+
+
+example: example/lib/main.dart
