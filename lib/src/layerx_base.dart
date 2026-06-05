@@ -6,6 +6,7 @@ import 'core/bottom_sheet_wrapper.dart';
 import 'core/modal_wrapper.dart';
 import 'core/toast_wrapper.dart';
 import 'core/toast_wrapper_simple.dart';
+import 'layerx_wrapper.dart';
 
 /// A lightweight yet powerful overlay and dialog management system for Flutter.
 ///
@@ -18,42 +19,43 @@ import 'core/toast_wrapper_simple.dart';
 /// It is built on top of [Overlay] and manages a global modal stack,
 /// enabling advanced UI control without requiring a BuildContext.
 class LayerX {
-  static final GlobalKey<OverlayState> _overlayKey = GlobalKey<OverlayState>();
+  static final GlobalKey<OverlayState> overlayKey = GlobalKey<OverlayState>();
 
-  static final List<OverlayEntry> _modalStack = [];
+  static final List<OverlayEntry> modalStack = [];
 
-  static final ValueNotifier<bool> _isModalActive = ValueNotifier(false);
+  static final ValueNotifier<bool> isModalActive = ValueNotifier(false);
 
-  /// Initializes LayerX.
+  /// Initializes LayerX with support for chaining existing builders.
   ///
-  /// Must be added to `MaterialApp.builder`.
+  /// Recommended for projects that already have a `builder` (e.g. MediaQuery, ScreenUtil, etc.).
   ///
-  /// Example:
   /// ```dart
-  /// MaterialApp(
-  ///   builder: LayerX.init(),
+  /// MaterialApp.router(
+  ///   builder: LayerX.init(
+  ///     builder: (context, child) => MediaQuery(...),
+  ///   ),
   /// )
   /// ```
-  ///
-  /// This enables:
-  /// - Global overlay access
-  /// - Back button interception for modals
-  /// - Modal stack management
-  static TransitionBuilder init() {
+  static TransitionBuilder init({TransitionBuilder? builder}) {
     return (context, child) {
+      // 先执行用户已有的 builder（如 MediaQuery、ScreenUtil 等）
+      if (builder != null) {
+        child = builder(context, child);
+      }
+
       return ValueListenableBuilder<bool>(
-        valueListenable: _isModalActive,
+        valueListenable: isModalActive,
         builder: (context, isActive, _) {
           return PopScope(
             canPop: !isActive,
             onPopInvokedWithResult: (didPop, result) {
               if (didPop) return;
-              _handleBackPress();
+              handleBackPress();
             },
             child: Material(
               color: Colors.transparent,
               child: Overlay(
-                key: _overlayKey,
+                key: overlayKey,
                 initialEntries: [OverlayEntry(builder: (_) => child ?? const SizedBox.shrink())],
               ),
             ),
@@ -63,28 +65,36 @@ class LayerX {
     };
   }
 
+  // home: LayerX.wrapper(
+  //   child: const MainPage(),
+  // ),
+  /// Optional wrapper for projects that prefer widget wrapping instead of builder.
+  static Widget wrapper({required Widget child}) {
+    return LayerXWrapper(child: child);
+  }
+
   /// ==================== 核心栈操作 ====================
   static void _pushEntry(OverlayEntry entry) {
-    _modalStack.add(entry);
-    _overlayKey.currentState?.insert(entry);
+    modalStack.add(entry);
+    overlayKey.currentState?.insert(entry);
     _updateModalState();
   }
 
   static void _removeEntry(OverlayEntry entry) {
     entry.remove();
-    _modalStack.remove(entry);
+    modalStack.remove(entry);
     _updateModalState();
   }
 
   static void _updateModalState() {
-    _isModalActive.value = _modalStack.isNotEmpty;
+    isModalActive.value = modalStack.isNotEmpty;
   }
 
-  static void _handleBackPress() {
-    if (_modalStack.isNotEmpty) {
-      final last = _modalStack.last;
+  static void handleBackPress() {
+    if (modalStack.isNotEmpty) {
+      final last = modalStack.last;
       last.remove();
-      _modalStack.removeLast();
+      modalStack.removeLast();
       _updateModalState();
     }
   }
@@ -596,7 +606,7 @@ class LayerX {
       ),
     );
 
-    _overlayKey.currentState?.insert(entry);
+    overlayKey.currentState?.insert(entry);
   }
 
   // ==================== Toast ====================
@@ -609,11 +619,7 @@ class LayerX {
   /// ```dart
   /// LayerX.toast("Hello");
   /// ```
-  static void toast(
-    String message, {
-    Duration duration = const Duration(seconds: 2),
-    bool fromBottom = true,
-  }) {
+  static void toast(String message, {Duration duration = const Duration(seconds: 2), bool fromBottom = true}) {
     late OverlayEntry entry;
 
     entry = OverlayEntry(
@@ -642,13 +648,13 @@ class LayerX {
       ),
     );
 
-    _overlayKey.currentState?.insert(entry);
+    overlayKey.currentState?.insert(entry);
   }
 
   /// Dismisses all active modals in the stack.
   static void dismissAll() {
-    while (_modalStack.isNotEmpty) {
-      final entry = _modalStack.removeLast();
+    while (modalStack.isNotEmpty) {
+      final entry = modalStack.removeLast();
       entry.remove();
     }
     _updateModalState();

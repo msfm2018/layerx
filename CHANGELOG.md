@@ -1,5 +1,36 @@
 # Changelog
 
+## [1.0.1] - 2026-06-05
+
+### Fixed & Improved
+
+- Added support for chaining existing `builder` in `MaterialApp` / `MaterialApp.router`.
+- Provided two initialization methods for maximum compatibility:
+  - `LayerX.init()` – for projects that already use a `builder` (MediaQuery, ScreenUtil, etc.).
+  - `LayerX.wrapper()` – cleaner approach when you prefer not to modify `MaterialApp.builder`.
+
+**Example Usage:**
+
+```dart
+// Method 1: Using init() with builder chaining (when you have other builders)
+builder: LayerX.init(
+  builder: (context, child) {
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(
+        textScaler: MediaQuery.of(context).textScaler.clamp(
+          minScaleFactor: 0.8,
+          maxScaleFactor: 1.6,
+        ),
+      ),
+      child: child!,
+    );
+  },
+),
+
+// Method 2: Using wrapper() - Recommended for cleaner code
+home: LayerX.wrapper(
+  child: const HomePage(),
+),
 ## [1.0.0] - 2026-06-02
 
 ### 🎉 Initial Release
