@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:layerx/layerx.dart';
-
-
 
 void main() {
   runApp(const MyApp());
@@ -16,9 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       builder: LayerX.init(),
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
+      theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
@@ -27,7 +23,6 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
-
   final String title;
 
   @override
@@ -35,7 +30,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   @override
   void initState() {
     super.initState();
@@ -54,7 +48,6 @@ class _MyHomePageState extends State<MyHomePage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-
           /// ================= Dialog =================
           _btn('confirm', () async {
             final r = await LayerX.confirm('Are you sure to continue?');
@@ -62,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
           }),
 
           _btn('show', () async {
-           LayerX.show("This is a message");
+            LayerX.show("This is a message");
           }),
 
           _btn('alert', () async {
@@ -84,7 +77,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text('Custom Dialog', style: TextStyle(fontSize: 18)),
+                          const Text(
+                            'Custom Dialog',
+                            style: TextStyle(fontSize: 18),
+                          ),
                           const SizedBox(height: 12),
                           const Text('You can put any widget here '),
 
@@ -107,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 child: const Text('OK'),
                               ),
                             ],
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -131,7 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
           _btn('actionSheet ⭐', () async {
             final i = await LayerX.actionSheet(
-               options: ['Camera', 'Gallery', 'Delete'],
+              options: ['Camera', 'Gallery', 'Delete'],
             );
             LayerX.toast('Selected: $i');
           }),
@@ -177,7 +173,6 @@ class _MyHomePageState extends State<MyHomePage> {
           _btn('toast', () {
             LayerX.toast('This is a toast');
 
-
             // LayerX.toast('这是 Toast', fromBottom: false);
 
             // 自定义显示时间
@@ -206,10 +201,7 @@ class _MyHomePageState extends State<MyHomePage> {
               await Future.delayed(const Duration(seconds: 2));
             });
 
-            LayerX.notification(
-              title: 'Completed',
-              message: 'Input: $text',
-            );
+            LayerX.notification(title: 'Completed', message: 'Input: $text');
           }),
         ],
       ),
@@ -219,10 +211,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _btn(String text, VoidCallback onPressed) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: ElevatedButton(
-        onPressed: onPressed,
-        child: Text(text),
-      ),
+      child: ElevatedButton(onPressed: onPressed, child: Text(text)),
     );
   }
 }

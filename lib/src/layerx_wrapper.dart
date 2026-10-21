@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import './layerx_base.dart';
 
 /// A wrapper widget that initializes LayerX.
@@ -22,7 +22,7 @@ class _LayerXWrapperState extends State<LayerXWrapper> {
           canPop: !isActive,
           onPopInvokedWithResult: (didPop, result) {
             if (didPop) return;
-            LayerX.handleBackPress(); 
+            LayerX.handleBackPress();
           },
           child: Material(
             color: Colors.transparent,

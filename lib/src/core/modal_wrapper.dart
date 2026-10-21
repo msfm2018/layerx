@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class ModalWrapper<T> extends StatefulWidget {
   final Widget child;
@@ -14,13 +14,16 @@ class ModalWrapper<T> extends StatefulWidget {
   State<ModalWrapper<T>> createState() => ModalWrapperState<T>();
 }
 
-class ModalWrapperState<T> extends State<ModalWrapper<T>> with SingleTickerProviderStateMixin {
+class ModalWrapperState<T> extends State<ModalWrapper<T>>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 200))..forward();
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 200))
+      ..forward();
   }
 
   void dismiss(T? result) async {
@@ -34,11 +37,13 @@ class ModalWrapperState<T> extends State<ModalWrapper<T>> with SingleTickerProvi
       children: [
         AnimatedBuilder(
           animation: _controller,
-          builder: (_, __) => Container(color: Colors.black.withValues(alpha: .4 * _controller.value)),
+          builder: (_, __) => Container(
+              color: Colors.black.withValues(alpha: .4 * _controller.value)),
         ),
         Center(
           child: ScaleTransition(
-            scale: CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
+            scale:
+                CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
             child: FadeTransition(opacity: _controller, child: widget.child),
           ),
         ),
@@ -46,4 +51,3 @@ class ModalWrapperState<T> extends State<ModalWrapper<T>> with SingleTickerProvi
     );
   }
 }
-

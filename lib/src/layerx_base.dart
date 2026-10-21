@@ -1,12 +1,17 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
+import 'package:material_ui/material_ui.dart';
 import 'core/bottom_sheet_wrapper.dart';
 import 'core/modal_wrapper.dart';
 import 'core/toast_wrapper.dart';
 import 'core/toast_wrapper_simple.dart';
 import 'layerx_wrapper.dart';
+// import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart'
+    hide GlobalMaterialLocalizations;
+
+// 'package:flutter_localizations/src/material_localizations.dart' and
+// 'package:material_ui/src/global_material_localizations.dart'.
 
 /// A lightweight yet powerful overlay and dialog management system for Flutter.
 ///
@@ -24,6 +29,93 @@ class LayerX {
   static final List<OverlayEntry> modalStack = [];
 
   static final ValueNotifier<bool> isModalActive = ValueNotifier(false);
+  // static Widget _localize(Widget child) {
+  //   final ctx = overlayKey.currentContext;
+
+  //   final locale =
+  //       ctx != null ? Localizations.localeOf(ctx) : const Locale('en');
+
+  //   final theme = ctx != null ? Theme.of(ctx) : ThemeData.light();
+
+  //   return Directionality(
+  //     textDirection: ctx != null ? Directionality.of(ctx) : TextDirection.ltr,
+  //     child: Localizations(
+  //       locale: locale,
+  //       delegates: const [
+  //         GlobalMaterialLocalizations.delegate,
+  //         GlobalWidgetsLocalizations.delegate,
+  //         GlobalCupertinoLocalizations.delegate,
+  //       ],
+  //       child: Theme(
+  //         data: theme,
+  //         child: Material(
+  //           type: MaterialType.transparency,
+  //           child: child,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  static Widget _localize(Widget child) {
+    final context = overlayKey.currentContext;
+
+    // 优先使用宿主应用的语言、主题和文字方向。
+    // 如果宿主环境暂时不可用，则使用安全的默认值。
+    final locale = context != null
+        ? Localizations.maybeLocaleOf(context) ?? const Locale('en')
+        : const Locale('en');
+
+    final theme = context != null ? Theme.of(context) : ThemeData.light();
+
+    final textDirection =
+        context != null ? Directionality.of(context) : TextDirection.ltr;
+
+    return Directionality(
+      textDirection: textDirection,
+      child: Localizations(
+        locale: locale,
+        delegates: [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        child: Theme(
+          data: theme,
+          child: Material(
+            type: MaterialType.transparency,
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+
+  static Widget _localize_pp(Widget child) {
+    return Directionality(
+      textDirection: TextDirection
+          .ltr, // 如果需要跟随系统，可改成 TextDirectionality.of(overlayKey.currentContext!) 但要做空判断
+      child: Localizations(
+        locale: const Locale('en'), // 建议改成你项目实际使用的语言，比如 Locale('zh', 'CN')
+        delegates: [
+          // GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        child: Theme(
+          // 尽量复用应用主题，找不到就用默认
+          data: overlayKey.currentContext != null
+              ? Theme.of(overlayKey.currentContext!)
+              : ThemeData.light(),
+          child: Material(
+            // 再加一层 Material，防止部分组件报缺少 Material
+            type: MaterialType.transparency,
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
 
   /// Initializes LayerX with support for chaining existing builders.
   ///
@@ -36,6 +128,7 @@ class LayerX {
   ///   ),
   /// )
   /// ```
+
   static TransitionBuilder init({TransitionBuilder? builder}) {
     return (context, child) {
       // 先执行用户已有的 builder（如 MediaQuery、ScreenUtil 等）
@@ -56,7 +149,9 @@ class LayerX {
               color: Colors.transparent,
               child: Overlay(
                 key: overlayKey,
-                initialEntries: [OverlayEntry(builder: (_) => child ?? const SizedBox.shrink())],
+                initialEntries: [
+                  OverlayEntry(builder: (_) => child ?? const SizedBox.shrink())
+                ],
               ),
             ),
           );
@@ -108,24 +203,33 @@ class LayerX {
   /// ```dart
   /// final result = await LayerX.confirm("Are you sure?");
   /// ```
-  static Future<bool> confirm(String message, {String title = 'Confirm', String yesText = 'OK', String noText = 'Cancel'}) {
+  static Future<bool> confirm(String message,
+      {String title = 'Confirm',
+      String yesText = 'OK',
+      String noText = 'Cancel'}) {
     final completer = Completer<bool>();
     late OverlayEntry entry;
 
     entry = OverlayEntry(
-      builder: (_) => ModalWrapper(
-        onClose: (result) {
-          _removeEntry(entry);
-          completer.complete(result as FutureOr<bool>?);
-        },
-        child: Builder(
-          builder: (context) => AlertDialog(
-            title: Text(title),
-            content: Text(message),
-            actions: [
-              TextButton(onPressed: () => ModalWrapper.of(context)?.dismiss(false), child: Text(noText)),
-              TextButton(onPressed: () => ModalWrapper.of(context)?.dismiss(true), child: Text(yesText)),
-            ],
+      builder: (context) => _localize(
+        ModalWrapper(
+          onClose: (result) {
+            _removeEntry(entry);
+            completer.complete(result as bool? ?? false);
+          },
+          child: Builder(
+            builder: (context) => AlertDialog(
+              title: Text(title),
+              content: Text(message),
+              actions: [
+                TextButton(
+                    onPressed: () => ModalWrapper.of(context)?.dismiss(false),
+                    child: Text(noText)),
+                TextButton(
+                    onPressed: () => ModalWrapper.of(context)?.dismiss(true),
+                    child: Text(yesText)),
+              ],
+            ),
           ),
         ),
       ),
@@ -141,21 +245,28 @@ class LayerX {
   /// ```dart
   /// await LayerX.show("Operation completed");
   /// ```
-  static Future<void> show(String message, {String title = 'Confirm', String okText = 'OK'}) {
+  static Future<void> show(String message,
+      {String title = 'Confirm', String okText = 'OK'}) {
     final completer = Completer<void>();
     late OverlayEntry entry;
 
     entry = OverlayEntry(
-      builder: (_) => ModalWrapper(
-        onClose: (_) {
-          _removeEntry(entry);
-          completer.complete();
-        },
-        child: Builder(
-          builder: (context) => AlertDialog(
-            title: Text(title),
-            content: Text(message),
-            actions: [TextButton(onPressed: () => ModalWrapper.of(context)?.dismiss(true), child: Text(okText))],
+      builder: (_) => _localize(
+        ModalWrapper(
+          onClose: (_) {
+            _removeEntry(entry);
+            completer.complete();
+          },
+          child: Builder(
+            builder: (context) => AlertDialog(
+              title: Text(title),
+              content: Text(message),
+              actions: [
+                TextButton(
+                    onPressed: () => ModalWrapper.of(context)?.dismiss(true),
+                    child: Text(okText))
+              ],
+            ),
           ),
         ),
       ),
@@ -174,30 +285,37 @@ class LayerX {
   /// ```dart
   /// final text = await LayerX.input();
   /// ```
-  static Future<String?> input({String title = 'Input', String hint = 'Please enter something'}) {
+  static Future<String?> input(
+      {String title = 'Input', String hint = 'Please enter something'}) {
     final completer = Completer<String?>();
     final controller = TextEditingController();
     late OverlayEntry entry;
 
     entry = OverlayEntry(
-      builder: (_) => ModalWrapper(
-        onClose: (result) {
-          controller.dispose();
-          _removeEntry(entry);
-          completer.complete(result != null ? controller.text : null);
-        },
-        child: Builder(
-          builder: (context) => AlertDialog(
-            title: Text(title),
-            content: TextField(
-              controller: controller,
-              autofocus: true,
-              decoration: InputDecoration(hintText: hint),
+      builder: (_) => _localize(
+        ModalWrapper(
+          onClose: (result) {
+            controller.dispose();
+            _removeEntry(entry);
+            completer.complete(result != null ? controller.text : null);
+          },
+          child: Builder(
+            builder: (context) => AlertDialog(
+              title: Text(title),
+              content: TextField(
+                controller: controller,
+                autofocus: true,
+                decoration: InputDecoration(hintText: hint),
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () => ModalWrapper.of(context)?.dismiss(false),
+                    child: const Text('cancel')),
+                TextButton(
+                    onPressed: () => ModalWrapper.of(context)?.dismiss(true),
+                    child: const Text('ok')),
+              ],
             ),
-            actions: [
-              TextButton(onPressed: () => ModalWrapper.of(context)?.dismiss(false), child: const Text('cancel')),
-              TextButton(onPressed: () => ModalWrapper.of(context)?.dismiss(true), child: const Text('ok')),
-            ],
           ),
         ),
       ),
@@ -351,7 +469,10 @@ class LayerX {
   ///   await fetchData();
   /// });
   /// ```
-  static Future<T?> wrapLoading<T>(FutureOr<T> Function() task, {String message = 'Loading...', Duration? timeout, Function(Object error)? onError}) async {
+  static Future<T?> wrapLoading<T>(FutureOr<T> Function() task,
+      {String message = 'Loading...',
+      Duration? timeout,
+      Function(Object error)? onError}) async {
     loading(message: message);
 
     try {
@@ -422,7 +543,8 @@ class LayerX {
                     children: [
                       const CircularProgressIndicator(color: Colors.white),
                       const SizedBox(height: 12),
-                      Text(message, style: const TextStyle(color: Colors.white)),
+                      Text(message,
+                          style: const TextStyle(color: Colors.white)),
                     ],
                   ),
                 ),
@@ -481,25 +603,32 @@ class LayerX {
   /// Alias of [show] with clearer semantics.
   ///
   /// Used for explicit alert dialogs.
-  static Future<void> alert(String message, {String title = 'Confirm', String okText = 'OK'}) {
+  static Future<void> alert(String message,
+      {String title = 'Confirm', String okText = 'OK'}) {
     final completer = Completer<void>();
     late OverlayEntry entry;
 
     entry = OverlayEntry(
-      builder: (_) => ModalWrapper(
-        onClose: (_) {
-          _removeEntry(entry);
-          completer.complete();
-        },
-        child: Builder(
-          builder: (context) => AlertDialog(
-            title: Text(title),
-            content: Text(message),
-            actions: [TextButton(onPressed: () => ModalWrapper.of(context)?.dismiss(true), child: Text(okText))],
-          ),
-        ),
-      ),
-    );
+        builder: (_) => _localize(
+              ModalWrapper(
+                onClose: (_) {
+                  _removeEntry(entry);
+                  completer.complete();
+                },
+                child: Builder(
+                  builder: (context) => AlertDialog(
+                    title: Text(title),
+                    content: Text(message),
+                    actions: [
+                      TextButton(
+                          onPressed: () =>
+                              ModalWrapper.of(context)?.dismiss(true),
+                          child: Text(okText))
+                    ],
+                  ),
+                ),
+              ),
+            ));
 
     _pushEntry(entry);
     return completer.future;
@@ -619,7 +748,9 @@ class LayerX {
   /// ```dart
   /// LayerX.toast("Hello");
   /// ```
-  static void toast(String message, {Duration duration = const Duration(seconds: 2), bool fromBottom = true}) {
+  static void toast(String message,
+      {Duration duration = const Duration(seconds: 2),
+      bool fromBottom = true}) {
     late OverlayEntry entry;
 
     entry = OverlayEntry(
@@ -628,14 +759,17 @@ class LayerX {
         fromBottom: fromBottom,
         onEnd: () => entry.remove(),
         child: Align(
-          alignment: fromBottom ? Alignment.bottomCenter : const Alignment(0, 0.7),
+          alignment:
+              fromBottom ? Alignment.bottomCenter : const Alignment(0, 0.7),
           child: Padding(
-            padding: EdgeInsets.only(bottom: fromBottom ? 50 : 0, left: 20, right: 20),
+            padding: EdgeInsets.only(
+                bottom: fromBottom ? 50 : 0, left: 20, right: 20),
             child: Material(
               color: Colors.black87,
               borderRadius: BorderRadius.circular(8),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Text(
                   message,
                   style: const TextStyle(color: Colors.white, fontSize: 15),
