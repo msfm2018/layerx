@@ -1,9 +1,6 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/widgets.dart';
 import './layerx_base.dart';
 
-/// A wrapper widget that initializes LayerX.
-///
-/// Use this when you prefer widget composition over `MaterialApp.builder`.
 class LayerXWrapper extends StatefulWidget {
   final Widget child;
   const LayerXWrapper({super.key, required this.child});
@@ -24,12 +21,11 @@ class _LayerXWrapperState extends State<LayerXWrapper> {
             if (didPop) return;
             LayerX.handleBackPress();
           },
-          child: Material(
-            color: Colors.transparent,
-            child: Overlay(
-              key: LayerX.overlayKey,
-              initialEntries: [OverlayEntry(builder: (_) => widget.child)],
-            ),
+          child: Overlay(
+            key: LayerX.overlayKey,
+            initialEntries: [
+              OverlayEntry(builder: (_) => widget.child),
+            ],
           ),
         );
       },

@@ -1,4 +1,13 @@
 # Changelog
+
+## [1.1.0] - 2026-10-26
+
+### Fixed
+- Removed the dependency on Material UI and refactored the implementation to use `package:flutter/widgets.dart`.
+- Improved cross-platform compatibility by keeping the core library independent of Material and Cupertino UI frameworks.
+- Reduced unnecessary UI framework dependencies and improved compatibility with custom UI implementations.
+- Improved framework neutrality for Flutter Web, desktop, mobile, and embedded applications.
+
 ## [1.0.2] - 2026-10-21
 ### Fixed 
 ## [1.0.1] - 2026-06-05
