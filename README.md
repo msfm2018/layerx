@@ -29,7 +29,7 @@ Add this to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  layerx: ^1.0.0
+  layerx: ^1.1.0
 ```
 
 ---
@@ -50,7 +50,7 @@ MaterialApp(
 
 ```dart
 LayerX.toast("Hello World");
-
+LayerX.toast("Hello World", context: context);
 await LayerX.show("Done");
 
 final ok = await LayerX.confirm("Are you sure?");
