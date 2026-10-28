@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/widgets.dart';
+import 'package:material_ui/material_ui.dart';
 
 class ToastWrapper extends StatefulWidget {
   final Widget child;

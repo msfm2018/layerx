@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0] - 2026-10-28
+
+### Fixed
+- Fixed yellow text underline issue on `Toast`, `Dialog`, `Loading`, `Progress`, and `Notification` components by wrapping overlay entries with `Material`.
+- Resolved missing text style context in standalone `OverlayEntry` popups.
+
+### Added
+- Added support for passing `BuildContext` to `toast` to allow auto-adaptation with current `ThemeData` (e.g., `theme.colorScheme.surface` and `onSurface`).
+
+### Changed
+- Improved toast container styling with dynamic background, border colors, and modern rounded corners.
+
 ## [1.1.0] - 2026-10-26
 
 ### Fixed

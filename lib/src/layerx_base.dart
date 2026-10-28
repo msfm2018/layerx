@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/widgets.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'core/bottom_sheet_wrapper.dart';
 import 'core/modal_wrapper.dart';
@@ -228,55 +228,59 @@ class LayerX {
   }) =>
       show(message, context: context, title: title, okText: okText);
 
-  // 简单 Dialog 容器
+// 简单 Dialog 容器
   static Widget _buildDialog({
     required String title,
     required Widget content,
     required List<Widget> actions,
   }) {
-    return Container(
-      width: 300,
-      margin: const EdgeInsets.symmetric(horizontal: 24),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x33000000),
-            blurRadius: 20,
-            offset: Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF212121),
+    return Material(
+      // 👈 在最外层加上 Material，解决无上下文导致的文本下划线问题
+      color: Colors.transparent,
+      child: Container(
+        width: 300,
+        margin: const EdgeInsets.symmetric(horizontal: 24),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFFFFF),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x33000000),
+              blurRadius: 20,
+              offset: Offset(0, 8),
             ),
-          ),
-          const SizedBox(height: 12),
-          DefaultTextStyle(
-            style: const TextStyle(fontSize: 15, color: Color(0xFF424242)),
-            child: content,
-          ),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: actions
-                .map((e) => Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: e,
-                    ))
-                .toList(),
-          ),
-        ],
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF212121),
+              ),
+            ),
+            const SizedBox(height: 12),
+            DefaultTextStyle(
+              style: const TextStyle(fontSize: 15, color: Color(0xFF424242)),
+              child: content,
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: actions
+                  .map((e) => Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: e,
+                      ))
+                  .toList(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -482,38 +486,41 @@ class LayerX {
 
       late OverlayEntry entry;
       entry = OverlayEntry(
-        builder: (_) => Stack(
-          children: [
-            const ModalBarrier(color: Color(0x42000000)),
-            Center(
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: const Color(0xE6000000),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // 简单转圈（纯 widgets 实现）
-                    const SizedBox(
-                      width: 36,
-                      height: 36,
-                      child: _SimpleProgressIndicator(),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      message,
-                      style: const TextStyle(
-                        color: Color(0xFFFFFFFF),
-                        fontSize: 14,
+        builder: (_) => Material(
+          color: Colors.transparent,
+          child: Stack(
+            children: [
+              const ModalBarrier(color: Color(0x42000000)),
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: const Color(0xE6000000),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // 简单转圈（纯 widgets 实现）
+                      const SizedBox(
+                        width: 36,
+                        height: 36,
+                        child: _SimpleProgressIndicator(),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      Text(
+                        message,
+                        style: const TextStyle(
+                          color: Color(0xFFFFFFFF),
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
 
@@ -581,34 +588,41 @@ class LayerX {
 
     late OverlayEntry entry;
     entry = OverlayEntry(
-      builder: (_) => Stack(
-        children: [
-          const ModalBarrier(color: Color(0x42000000)),
-          Center(
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFFFFF),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: 48,
-                    height: 48,
-                    child: _SimpleProgressIndicator(value: value),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    '${(value * 100).toInt()}%',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ],
+      builder: (_) => Material(
+        // 👈 加上这层 Material，消除文字的黄色下划线
+        color: Colors.transparent,
+        child: Stack(
+          children: [
+            const ModalBarrier(color: Color(0x42000000)),
+            Center(
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFFFFF),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 48,
+                      height: 48,
+                      child: _SimpleProgressIndicator(value: value),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      '${(value * 100).toInt()}%', // 修复了原本换行丢失的乘号
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Color(0xFF212121), // 显式指定颜色，防止兜底
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
     _progressEntry = entry;
@@ -620,7 +634,6 @@ class LayerX {
     _progressEntry = null;
   }
 
-  // -------------------- Toast --------------------
   static void toast(
     String message, {
     BuildContext? context,
@@ -629,33 +642,50 @@ class LayerX {
   }) {
     late OverlayEntry entry;
 
+    final theme = context != null ? Theme.of(context) : null;
+    final backgroundColor = theme != null
+        ? theme.colorScheme.surface.withValues(alpha: 0.95)
+        : const Color(0xE6000000);
+
+    final textColor =
+        theme != null ? theme.colorScheme.onSurface : const Color(0xFFFFFFFF);
+
+    final borderColor = theme?.colorScheme.onSurface.withValues(alpha: 0.08);
+
     entry = OverlayEntry(
       builder: (_) => ToastWrapper(
         duration: duration,
         fromBottom: fromBottom,
         onEnd: () => entry.remove(),
-        child: Align(
-          alignment:
-              fromBottom ? Alignment.bottomCenter : const Alignment(0, 0.7),
-          child: Padding(
-            padding: EdgeInsets.only(
-              bottom: fromBottom ? 50 : 0,
-              left: 20,
-              right: 20,
-            ),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: const Color(0xE6000000),
-                borderRadius: BorderRadius.circular(8),
+        child: Material(
+          color: Colors.transparent,
+          child: Align(
+            alignment:
+                fromBottom ? Alignment.bottomCenter : const Alignment(0, 0.7),
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: fromBottom ? 50 : 0,
+                left: 20,
+                right: 20,
               ),
-              child: Text(
-                message,
-                style: const TextStyle(
-                  color: Color(0xFFFFFFFF),
-                  fontSize: 15,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: BorderRadius.circular(20),
+                  border: borderColor != null
+                      ? Border.all(color: borderColor)
+                      : null,
                 ),
-                textAlign: TextAlign.center,
+                child: Text(
+                  message,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: textColor,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           ),
@@ -702,45 +732,48 @@ class LayerX {
     entry = OverlayEntry(
       builder: (_) => ToastWrapper(
         onEnd: () => entry.remove(),
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 50, left: 16, right: 16),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFFFFF),
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x33000000),
-                    blurRadius: 12,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF212121),
+        child: Material(
+          color: Colors.transparent,
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 50, left: 16, right: 16),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFFFFF),
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x33000000),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    message,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF616161),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF212121),
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      message,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF616161),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
